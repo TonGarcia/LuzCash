@@ -10,10 +10,9 @@ import com.wavesplatform.lang.v1.CTX
 import com.wavesplatform.lang.v1.evaluator.ctx.impl.waves.WavesContext
 import com.wavesplatform.lang.v1.evaluator.ctx.impl.{CryptoContext, PureContext}
 import com.wavesplatform.lang.v1.traits.Environment
-import org.scalatest.{Matchers, PropSpec}
-import org.scalatestplus.scalacheck.{ScalaCheckPropertyChecks => PropertyChecks}
+import com.wavesplatform.test._
 
-class DocExportTest extends PropSpec with PropertyChecks with Matchers {
+class DocExportTest extends PropSpec {
 
   def buildFullContext(ds: DirectiveSet): CTX[Environment] = {
     val wavesCtx  = WavesContext.build(Global, ds)

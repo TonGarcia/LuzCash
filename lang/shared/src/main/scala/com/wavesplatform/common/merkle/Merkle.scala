@@ -25,7 +25,7 @@ object Merkle {
       def loop(prevLevel: Seq[Digest], acc: Seq[Level]): Seq[Level] = {
         val level = prevLevel
           .grouped(2)
-          .map {
+          .collect {
             case Seq(l, r) => hash(l ++ r)
             case Seq(l)    => hash(l ++ empty)
           }

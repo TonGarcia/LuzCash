@@ -118,7 +118,7 @@ object ContractSerDe {
     val len = bb.getInt
     if (len <= (bb.limit() - bb.position()) && len >= 0) {
       (1 to len).toList
-        .traverse[Either[String, ?], A](_ => df(bb))
+        .traverse[Either[String, *], A](_ => df(bb))
     } else {
       Left(s"At position ${bb.position()} array of arguments too big.")
     }

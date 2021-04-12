@@ -35,7 +35,7 @@ import org.asynchttpclient.Dsl.{delete => _delete, get => _get, post => _post, p
 import org.asynchttpclient._
 import org.asynchttpclient.util.HttpConstants.ResponseStatusCodes.OK_200
 import org.scalactic.source.Position
-import org.scalatest.{Assertions, Matchers}
+import org.scalatest.{Assertions, matchers}
 import play.api.libs.json.Json.{stringify, toJson}
 import play.api.libs.json._
 
@@ -49,7 +49,7 @@ import scala.util.{Failure, Success}
 object AsyncHttpApi extends Assertions {
 
   //noinspection ScalaStyle
-  implicit class NodeAsyncHttpApi(val n: Node) extends Assertions with Matchers {
+  implicit class NodeAsyncHttpApi(val n: Node) extends Assertions with matchers.should.Matchers {
 
     def get(
         path: String,
@@ -1000,7 +1000,7 @@ object AsyncHttpApi extends Assertions {
     }
   }
 
-  implicit class NodesAsyncHttpApi(nodes: Seq[Node]) extends Matchers {
+  implicit class NodesAsyncHttpApi(nodes: Seq[Node]) extends matchers.should.Matchers {
     def height: Future[Seq[Int]] = traverse(nodes)(_.height)
 
     def waitForHeightAriseAndTxPresent(transactionId: String)(implicit p: Position): Future[Unit] =

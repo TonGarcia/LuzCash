@@ -3,7 +3,7 @@ package com.wavesplatform.it
 import com.wavesplatform.account.KeyPair
 import com.wavesplatform.common.utils.EitherExt2
 import com.wavesplatform.it.api.SyncHttpApi._
-import com.wavesplatform.it.util._
+import com.wavesplatform.test.NumericExt
 import com.wavesplatform.lang.v1.estimator.v2.ScriptEstimatorV2
 import com.wavesplatform.transaction.smart.SetScriptTransaction
 import com.wavesplatform.transaction.smart.script.ScriptCompiler
@@ -13,20 +13,12 @@ import org.scalatest._
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 
 trait IntegrationSuiteWithThreeAddresses
-    extends BeforeAndAfterAll
-    with Matchers
+    extends BaseSuite
     with ScalaFutures
     with IntegrationPatience
     with RecoverMethods
-    with IntegrationTestsScheme
-    with Nodes
     with ScorexLogging {
-  this: Suite =>
-
-  def miner: Node    = nodes.head
-  def notMiner: Node = nodes.last
-
-  protected def sender: Node = miner
+  this: TestSuite with Nodes =>
 
   protected lazy val firstKeyPair: KeyPair = sender.createKeyPair()
   protected lazy val firstAddress: String  = firstKeyPair.toAddress.toString

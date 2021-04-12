@@ -330,10 +330,10 @@ object ContractCompiler {
     Parser.parseContract(input) match {
       case fastparse.Parsed.Success(xs, _) =>
         ContractCompiler(ctx, xs, version, needCompaction) match {
-          case Left(err) => Left(err.toString)
+          case Left(err) => Left(err)
           case Right(c)  => Right(c)
         }
-      case f @ fastparse.Parsed.Failure(_, _, _) => Left(f.toString)
+      case f: fastparse.Parsed.Failure => Left(f.toString)
     }
   }
 

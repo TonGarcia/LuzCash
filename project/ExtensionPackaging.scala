@@ -29,7 +29,6 @@ object ExtensionPackaging extends AutoPlugin {
       packageName := s"${name.value}${network.value.packageSuffix}",
       packageDoc / publishArtifact := false,
       packageSrc / publishArtifact := false,
-      Universal / javaOptions := Nil,
       // Here we record the classpath as it's added to the mappings separately, so
       // we can use its order to generate the bash/bat scripts.
       classpathOrdering := Nil,
@@ -68,8 +67,8 @@ object ExtensionPackaging extends AutoPlugin {
              |chown -R ${nodePackageName.value}:${nodePackageName.value} /usr/share/${nodePackageName.value}""".stripMargin
       ),
       libraryDependencies ++= Dependencies.logDeps,
-      javaOptions in run ++= extensionClasses.value.zipWithIndex.map { case (extension, index) => s"-Dwaves.extensions.$index=$extension" }
-    ) ++ nameFix ++ inScope(Global)(nameFix) ++ maintainerFix
+      run / javaOptions ++= extensionClasses.value.zipWithIndex.map { case (extension, index) => s"-Dwaves.extensions.$index=$extension" }
+    ) ++ nameFix ++ maintainerFix
 
   private def maintainerFix =
     inConfig(Linux)(
@@ -147,7 +146,7 @@ object ExtensionPackaging extends AutoPlugin {
         val providedClasspath = refs.map { ref =>
           stateTask.flatMap { state =>
             val extracted = Project.extract(state)
-            extracted.get(Runtime / dependencyClasspath in ref)
+            extracted.get(ref / Runtime / dependencyClasspath)
           }
         }
 

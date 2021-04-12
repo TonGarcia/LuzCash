@@ -2,12 +2,6 @@ package com.wavesplatform.database
 
 import java.nio.ByteBuffer
 
-import scala.annotation.tailrec
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
-import scala.jdk.CollectionConverters._
-import scala.util.Try
-import scala.util.control.NonFatal
-
 import cats.data.Ior
 import cats.implicits._
 import com.google.common.cache.CacheBuilder
@@ -15,8 +9,8 @@ import com.google.common.collect.MultimapBuilder
 import com.google.common.primitives.{Ints, Shorts}
 import com.wavesplatform.account.{Address, Alias}
 import com.wavesplatform.api.BlockMeta
-import com.wavesplatform.block.{Block, SignedBlockHeader}
 import com.wavesplatform.block.Block.BlockId
+import com.wavesplatform.block.{Block, SignedBlockHeader}
 import com.wavesplatform.common.state.ByteStr
 import com.wavesplatform.common.utils._
 import com.wavesplatform.database
@@ -26,11 +20,11 @@ import com.wavesplatform.features.BlockchainFeatures
 import com.wavesplatform.lang.ValidationError
 import com.wavesplatform.protobuf.transaction.PBTransactions
 import com.wavesplatform.settings.{BlockchainSettings, DBSettings, WavesSettings}
-import com.wavesplatform.state.{TxNum, _}
 import com.wavesplatform.state.reader.LeaseDetails
-import com.wavesplatform.transaction._
+import com.wavesplatform.state.{TxNum, _}
 import com.wavesplatform.transaction.Asset.{IssuedAsset, Waves}
 import com.wavesplatform.transaction.TxValidationError.{AliasDoesNotExist, AliasIsDisabled}
+import com.wavesplatform.transaction._
 import com.wavesplatform.transaction.assets._
 import com.wavesplatform.transaction.assets.exchange.ExchangeTransaction
 import com.wavesplatform.transaction.lease.{LeaseCancelTransaction, LeaseTransaction}
@@ -40,6 +34,12 @@ import com.wavesplatform.utils.{LoggerFacade, ScorexLogging}
 import monix.reactive.Observer
 import org.iq80.leveldb.DB
 import org.slf4j.LoggerFactory
+
+import scala.annotation.tailrec
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.jdk.CollectionConverters._
+import scala.util.Try
+import scala.util.control.NonFatal
 
 object LevelDBWriter extends ScorexLogging {
 
@@ -158,7 +158,7 @@ object LevelDBWriter extends ScorexLogging {
 }
 
 //noinspection UnstableApiUsage
-abstract class LevelDBWriter private[database](
+abstract class LevelDBWriter private[database] (
     writableDB: DB,
     spendableBalanceChanged: Observer[(Address, Asset)],
     val settings: BlockchainSettings,
@@ -559,8 +559,8 @@ abstract class LevelDBWriter private[database](
           val (txHeight, txNum) = transactions
             .get(TransactionId(txId))
             .map { case (_, txNum, _) => (height, txNum) }
-            .orElse(rw.get(Keys.transactionMetaById(TransactionId(txId))).map {
-              case TransactionMeta(height, txNum, _, _) => (height, TxNum(txNum.toShort))
+            .orElse(rw.get(Keys.transactionMetaById(TransactionId(txId))).map { tm =>
+              (tm.height, TxNum(tm.num.toShort))
             })
             .getOrElse(throw new IllegalArgumentException(s"Couldn't find transaction height and num: $txId"))
 
@@ -687,7 +687,7 @@ abstract class LevelDBWriter private[database](
         transactions.foreach {
           case (num, tx) =>
             forgetTransaction(tx.id())
-            tx match {
+            (tx: @unchecked) match {
               case _: GenesisTransaction                                                       => // genesis transaction can not be rolled back
               case _: PaymentTransaction | _: TransferTransaction | _: MassTransferTransaction =>
               // balances already restored
@@ -803,23 +803,24 @@ abstract class LevelDBWriter private[database](
 
   override def transferById(id: ByteStr): Option[(Int, TransferTransaction)] = readOnly { db =>
     for {
-      TransactionMeta(height, num, TransferTransaction.typeId, _) <- db.get(Keys.transactionMetaById(TransactionId @@ id))
-      tx                                                          <- db.get(Keys.transactionAt(Height(height), TxNum(num.toShort))).collect { case (t: TransferTransaction, true) => t }
+      tm <- db.get(Keys.transactionMetaById(TransactionId @@ id))
+      if tm.`type` == TransferTransaction.typeId
+      tx <- db.get(Keys.transactionAt(Height(tm.height), TxNum(tm.num.toShort))).collect { case (t: TransferTransaction, true) => t }
     } yield (height, tx)
   }
 
   override def transactionInfo(id: ByteStr): Option[(Int, Transaction, Boolean)] = readOnly(transactionInfo(id, _))
 
-  protected def transactionInfo(id: ByteStr, db: ReadOnlyDB): Option[(Int, Transaction, Boolean)] = {
-    val txId = TransactionId(id)
+  protected def transactionInfo(id: ByteStr, db: ReadOnlyDB): Option[(Int, Transaction, Boolean)] =
     for {
-      TransactionMeta(height, num, _, failed) <- db.get(Keys.transactionMetaById(txId))
-      (tx, _)                                 <- db.get(Keys.transactionAt(Height(height), TxNum(num.toShort)))
-    } yield (height, tx, !failed)
-  }
+      tm      <- db.get(Keys.transactionMetaById(TransactionId(id)))
+      (tx, _) <- db.get(Keys.transactionAt(Height(tm.height), TxNum(tm.num.toShort)))
+    } yield (tm.height, tx, !tm.failed)
 
   override def transactionMeta(id: ByteStr): Option[(Int, Boolean)] = readOnly { db =>
-    db.get(Keys.transactionMetaById(TransactionId(id))).map { case TransactionMeta(height, _, _, failed) => (height, !failed) }
+    db.get(Keys.transactionMetaById(TransactionId(id))).map { tm =>
+      (tm.height, !tm.failed)
+    }
   }
 
   override def resolveAlias(alias: Alias): Either[ValidationError, Address] = readOnly { db =>
@@ -838,8 +839,15 @@ abstract class LevelDBWriter private[database](
         isActive =>
           transactionInfo(leaseId, db).collect {
             case (leaseHeight, lt: LeaseTransaction, _) =>
-              LeaseDetails(lt.sender, lt.recipient, lt.amount, if (isActive) LeaseDetails.Status.Active
-                else LeaseDetails.Status.Cancelled(leaseHeight, ByteStr.empty), leaseId, leaseHeight)
+              LeaseDetails(
+                lt.sender,
+                lt.recipient,
+                lt.amount,
+                if (isActive) LeaseDetails.Status.Active
+                else LeaseDetails.Status.Cancelled(leaseHeight, ByteStr.empty),
+                leaseId,
+                leaseHeight
+              )
           },
         Some(_)
       )

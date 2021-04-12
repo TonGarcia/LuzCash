@@ -1,6 +1,5 @@
 package com.wavesplatform.api.common
 
-import com.wavesplatform.{history, BlocksTransactionsHelpers, TransactionGen}
 import com.wavesplatform.common.state.ByteStr
 import com.wavesplatform.common.utils._
 import com.wavesplatform.db.WithDomain
@@ -9,19 +8,16 @@ import com.wavesplatform.lang.directives.values.V5
 import com.wavesplatform.lang.v1.compiler.TestCompiler
 import com.wavesplatform.lang.v1.traits.domain.{Lease, Recipient}
 import com.wavesplatform.settings.TestFunctionalitySettings
-import com.wavesplatform.state.{diffs, DataEntry, Diff, EmptyDataEntry, StringDataEntry}
+import com.wavesplatform.state.{DataEntry, Diff, EmptyDataEntry, StringDataEntry, diffs}
+import com.wavesplatform.test.FreeSpec
 import com.wavesplatform.transaction.{DataTransaction, GenesisTransaction, TxHelpers}
+import com.wavesplatform.{BlocksTransactionsHelpers, history}
 import monix.execution.Scheduler.Implicits.global
-import org.scalatest.{FreeSpec, Matchers}
-import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
 class CommonAccountApiSpec
     extends FreeSpec
-    with Matchers
     with WithDomain
-    with TransactionGen
-    with BlocksTransactionsHelpers
-    with ScalaCheckDrivenPropertyChecks {
+    with BlocksTransactionsHelpers {
 
   "Data stream" - {
     "handles non-existent address" in {

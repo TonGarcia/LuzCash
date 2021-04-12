@@ -55,7 +55,7 @@ object Serde {
   }
 
   def deserializeDeclaration(bb: ByteBuffer, aux: => Coeval[EXPR], decType: Byte): Coeval[DECLARATION] = {
-    decType match {
+    (decType: @unchecked) match {
       case DEC_LET =>
         for {
           name <- Coeval.now(bb.getString)
@@ -81,7 +81,7 @@ object Serde {
     desAuxR(bb, allowObjects, acc)
 
   private def desAuxR(bb: ByteBuffer, allowObjects: Boolean, acc: Coeval[Unit]): Coeval[EXPR] = acc.flatMap { _ =>
-    bb.get() match {
+    (bb.get(): @unchecked) match {
       case E_LONG   => Coeval.now(CONST_LONG(bb.getLong))
       case E_BYTES  => Coeval.now(CONST_BYTESTR(ByteStr(bb.getBytes)).explicitGet())
       case E_STRING => Coeval.now(CONST_STRING(bb.getString).explicitGet())

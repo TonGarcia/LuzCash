@@ -106,7 +106,7 @@ case class DebugApiRoute(
     }))
   }
 
-  private def distribution(height: Int): Route = optionalHeaderValueByType[Accept](()) { accept =>
+  private def distribution(height: Int): Route = optionalHeaderValueByType(Accept) { accept =>
     extractScheduler { implicit s =>
       complete(
         assetsApi

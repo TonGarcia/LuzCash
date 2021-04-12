@@ -3,7 +3,7 @@ package com.wavesplatform.http
 import scala.util.Random
 
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, StatusCodes}
-import com.wavesplatform.{BlockchainStubHelpers, NTPTime, TestValues, TestWallet, TransactionGen}
+import com.wavesplatform.{BlockchainStubHelpers, NTPTime, TestValues, TestWallet}
 import com.wavesplatform.api.common.CommonTransactionsApi
 import com.wavesplatform.api.common.CommonTransactionsApi.TransactionMeta
 import com.wavesplatform.api.http.ApiError.ApiKeyNotValid
@@ -12,7 +12,6 @@ import com.wavesplatform.block.SignedBlockHeader
 import com.wavesplatform.common.state.ByteStr
 import com.wavesplatform.common.utils._
 import com.wavesplatform.db.WithDomain
-import com.wavesplatform.it.util._
 import com.wavesplatform.lagonaki.mocks.TestBlock
 import com.wavesplatform.lang.v1.estimator.v3.ScriptEstimatorV3
 import com.wavesplatform.lang.v1.evaluator.ctx.impl.PureContext
@@ -22,6 +21,7 @@ import com.wavesplatform.settings.WavesSettings
 import com.wavesplatform.state.{AccountScriptInfo, AssetDescription, AssetScriptInfo, Blockchain, Height, InvokeScriptResult, NG, StateHash}
 import com.wavesplatform.state.StateHash.SectionId
 import com.wavesplatform.state.reader.LeaseDetails
+import com.wavesplatform.test._
 import com.wavesplatform.transaction.TxHelpers
 import com.wavesplatform.transaction.assets.exchange.OrderType
 import com.wavesplatform.transaction.smart.InvokeScriptTransaction
@@ -40,7 +40,6 @@ class DebugApiRouteSpec
     with NTPTime
     with PathMockFactory
     with BlockchainStubHelpers
-    with TransactionGen
     with WithDomain {
 
   val wavesSettings = WavesSettings.default()
@@ -542,12 +541,12 @@ class DebugApiRouteSpec
       val amount1    = 100
       val recipient1 = Recipient.Address(ByteStr.decodeBase58("3NAgxLPGnw3RGv9JT6NTDaG5D1iLUehg2xd").get)
       val nonce1     = 0
-      val leaseId1   = Lease.calculateId(Lease(recipient1, amount1, nonce1), invoke.id.value())
+      val leaseId1   = Lease.calculateId(Lease(recipient1, amount1, nonce1), invoke.id())
 
       val amount2    = 20
       val recipient2 = Recipient.Alias("some_alias")
       val nonce2     = 2
-      val leaseId2   = Lease.calculateId(Lease(recipient2, amount2, nonce2), invoke.id.value())
+      val leaseId2   = Lease.calculateId(Lease(recipient2, amount2, nonce2), invoke.id())
 
       val blockchain = createBlockchainStub { blockchain =>
         (blockchain.balance _).when(*, *).returns(Long.MaxValue)

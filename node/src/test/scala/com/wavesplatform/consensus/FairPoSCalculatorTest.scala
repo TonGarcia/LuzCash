@@ -6,12 +6,12 @@ import com.wavesplatform.account.{KeyPair, PrivateKey, PublicKey}
 import com.wavesplatform.common.state.ByteStr
 import com.wavesplatform.common.utils.{Base58, EitherExt2}
 import com.wavesplatform.crypto
-import org.scalatest.{Matchers, PropSpec}
+import com.wavesplatform.test.PropSpec
 
 import scala.io.Source
 import scala.util.Random
 
-class FairPoSCalculatorTest extends PropSpec with Matchers {
+class FairPoSCalculatorTest extends PropSpec {
   import FairPoSCalculatorTest._
   import PoSCalculator._
 

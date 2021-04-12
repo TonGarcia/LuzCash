@@ -113,7 +113,7 @@ case class AddressApiRoute(
     complete(balanceJson(address))
   }
 
-  def balances: Route = (path("balance") & get & parameters(("height".as[Int].?, "address".as[String].*, "asset".?))) {
+  def balances: Route = (path("balance") & get & parameters("height".as[Int].?, "address".as[String].*, "asset".?)) {
     (maybeHeight, addresses, assetId) =>
       val height = maybeHeight.getOrElse(blockchain.height)
       validateBalanceDepth(height)(

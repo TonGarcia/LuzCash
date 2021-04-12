@@ -62,7 +62,7 @@ object TracedResult {
         a.trace |+| b.trace
       )
 
-  implicit def applicativeTracedResult[L]: Applicative[TracedResult[L, ?]] with Apply[TracedResult[L, ?]] with Functor[TracedResult[L, ?]]  = new Applicative[TracedResult[L, ?]] {
+  implicit def applicativeTracedResult[L]: Applicative[TracedResult[L, *]] with Apply[TracedResult[L, *]] with Functor[TracedResult[L, *]]  = new Applicative[TracedResult[L, *]] {
     def pure[A](v:A) = wrapValue[A, L](v)
     def ap[A,B](fb: TracedResult[L, A=>B])(fa: TracedResult[L, A]) : TracedResult[L, B] = {
       TracedResult(fa.resultE ap fb.resultE, fa.trace ++ fb.trace)

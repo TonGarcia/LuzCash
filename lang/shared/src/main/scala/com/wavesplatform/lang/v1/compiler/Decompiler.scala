@@ -123,7 +123,7 @@ object Decompiler {
 
     val i = if (firstLinePolicy == DontIndentFirstLine) 0 else ctx.ident
 
-    e flatMap {
+    e.flatMap(v => (v: @unchecked) match {
       case Terms.BLOCK(Terms.LET(MatchRef(name), e), body) => matchBlock(name, pure(body), ctx.incrementIdent()) flatMap { b =>
         expr(pure(e), ctx.incrementIdent(), NoBraces, DontIndentFirstLine) map { ex =>
           out("match " ++ ex ++ " {" ++ NEWLINE, ctx.ident) ++
@@ -203,7 +203,7 @@ object Decompiler {
         }
       case _: Terms.ARR       => ??? // never happens
       case obj: Terms.CaseObj => pureOut(obj.toString, i) // never happens
-    }
+    })
   }
 
   private val extractedFuncR = s"$ExtractedFuncPrefix(\\w+)\\((.+)\\)".r

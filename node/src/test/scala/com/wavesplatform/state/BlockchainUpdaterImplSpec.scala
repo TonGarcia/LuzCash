@@ -14,6 +14,7 @@ import com.wavesplatform.lagonaki.mocks.TestBlock
 import com.wavesplatform.settings.{TestFunctionalitySettings, WavesSettings, loadConfig}
 import com.wavesplatform.state.diffs.ENOUGH_AMT
 import com.wavesplatform.state.utils._
+import com.wavesplatform.test.FreeSpec
 import com.wavesplatform.transaction.Asset.Waves
 import com.wavesplatform.transaction.transfer.TransferTransaction
 import com.wavesplatform.transaction.{GenesisTransaction, Transaction}
@@ -21,11 +22,9 @@ import com.wavesplatform.utils.Time
 import com.wavesplatform.{EitherMatchers, NTPTime, RequestGen, WithDB}
 import org.scalacheck.Gen
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{FreeSpec, Matchers}
 
 class BlockchainUpdaterImplSpec
     extends FreeSpec
-    with Matchers
     with EitherMatchers
     with WithDB
     with RequestGen

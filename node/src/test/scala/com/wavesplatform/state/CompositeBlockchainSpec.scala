@@ -2,11 +2,10 @@ package com.wavesplatform.state
 
 import com.wavesplatform.state.reader.CompositeBlockchain
 import com.wavesplatform.utils.EmptyBlockchain
-import com.wavesplatform.{BlockGen, NoShrink}
-import org.scalatest.{FreeSpec, Matchers}
-import org.scalatestplus.scalacheck.{ScalaCheckPropertyChecks => PropertyChecks}
+import com.wavesplatform.BlockGen
+import com.wavesplatform.test.FreeSpec
 
-class CompositeBlockchainSpec extends FreeSpec with Matchers with PropertyChecks with BlockGen with NoShrink {
+class CompositeBlockchainSpec extends FreeSpec with BlockGen {
   "blockHeaderAndSize at current height is last block" in forAll(randomSignerBlockGen) { block =>
     val comp = CompositeBlockchain(EmptyBlockchain, newBlock = Some(block))
 

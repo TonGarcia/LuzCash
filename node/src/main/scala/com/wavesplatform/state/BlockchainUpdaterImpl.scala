@@ -570,7 +570,7 @@ class BlockchainUpdaterImpl(
               innerVotes :+ ng.base.header.rewardVote
             else innerVotes
         }
-      case None => Seq()
+      case _ => Seq()
     }
   }
 

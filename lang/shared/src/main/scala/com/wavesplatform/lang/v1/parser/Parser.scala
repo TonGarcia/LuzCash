@@ -209,7 +209,7 @@ object Parser {
       maybeFunctionCallP
   )
 
-  abstract class Accessor
+  sealed trait Accessor
   case class Method(name: PART[String], args: Seq[EXPR]) extends Accessor
   case class Getter(name: PART[String])                  extends Accessor
   case class ListIndex(index: EXPR)                      extends Accessor
@@ -575,7 +575,7 @@ object Parser {
           case _ => throw new Exception("Parser error")
         }
       case Parsed.Success((s, _), v) => Parsed.Success(s,v)
-      case Parsed.Failure(m, o, e) => Parsed.Failure(m, o, e)
+      case f: Parsed.Failure => Parsed.Failure(f.label, f.index, f.extra)
     }
   }
 
@@ -586,7 +586,7 @@ object Parser {
     def parse(str: String): Either[Parsed.Failure, SCRIPT] =
       parseExpr(str) match {
         case Parsed.Success(resExpr, _) => Right(SCRIPT(resExpr.position, resExpr))
-        case f @ Parsed.Failure(_, _, _) => Left(f)
+        case f: Parsed.Failure => Left(f)
       }
 
     parseWithError[SCRIPT](
@@ -605,7 +605,7 @@ object Parser {
     def parse(str: String): Either[Parsed.Failure, DAPP] =
       parseContract(str) match {
         case Parsed.Success(resDAPP, _) => Right(resDAPP)
-        case f @ Parsed.Failure(_, _, _) => Left(f)
+        case f: Parsed.Failure => Left(f)
       }
 
     parseWithError[DAPP](

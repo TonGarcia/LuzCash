@@ -1,11 +1,10 @@
 package com.wavesplatform.lang.v1
 
 import cats.kernel.Monoid
-import com.wavesplatform.lang.utils.environment
-import com.wavesplatform.lang.Common.NoShrink
 import com.wavesplatform.lang.Global
 import com.wavesplatform.lang.directives.DirectiveSet
 import com.wavesplatform.lang.directives.values.V3
+import com.wavesplatform.lang.utils.environment
 import com.wavesplatform.lang.v1.compiler.ExpressionCompiler
 import com.wavesplatform.lang.v1.compiler.Terms.{CONST_BOOLEAN, CONST_LONG, EVALUATED}
 import com.wavesplatform.lang.v1.evaluator.EvaluatorV1
@@ -13,10 +12,9 @@ import com.wavesplatform.lang.v1.evaluator.ctx.impl.waves.WavesContext
 import com.wavesplatform.lang.v1.evaluator.ctx.impl.{CryptoContext, PureContext}
 import com.wavesplatform.lang.v1.parser.Parser
 import com.wavesplatform.lang.v1.traits.Environment
-import org.scalatest.{Matchers, PropSpec}
-import org.scalatestplus.scalacheck.{ScalaCheckPropertyChecks => PropertyChecks}
+import com.wavesplatform.test._
 
-class FoldTest extends PropSpec with PropertyChecks with Matchers with NoShrink {
+class FoldTest extends PropSpec {
   private def eval[T <: EVALUATED](code: String): Either[String, T] = {
     val untyped = Parser.parseExpr(code).get.value
     val ctx: CTX[Environment] =

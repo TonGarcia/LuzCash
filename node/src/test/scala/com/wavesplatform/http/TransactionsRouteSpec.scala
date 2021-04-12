@@ -1,10 +1,6 @@
 package com.wavesplatform.http
 
-import scala.concurrent.Future
-import scala.util.Random
-
 import akka.http.scaladsl.model._
-import com.wavesplatform.{BlockchainStubHelpers, BlockGen, NoShrink, TestTime, TestValues, TestWallet, TransactionGen}
 import com.wavesplatform.account.{AddressScheme, KeyPair, PublicKey}
 import com.wavesplatform.api.common.CommonTransactionsApi
 import com.wavesplatform.api.common.CommonTransactionsApi.TransactionMeta
@@ -21,9 +17,8 @@ import com.wavesplatform.lang.v1.compiler.Terms.{CONST_BOOLEAN, CONST_LONG, FUNC
 import com.wavesplatform.lang.v1.estimator.v3.ScriptEstimatorV3
 import com.wavesplatform.lang.v1.traits.domain.{Lease, LeaseCancel, Recipient}
 import com.wavesplatform.network.TransactionPublisher
-import com.wavesplatform.state.{AccountScriptInfo, Blockchain, Height, InvokeScriptResult}
 import com.wavesplatform.state.reader.LeaseDetails
-import com.wavesplatform.transaction.{Asset, Proofs, TxHelpers, TxVersion}
+import com.wavesplatform.state.{AccountScriptInfo, Blockchain, Height, InvokeScriptResult}
 import com.wavesplatform.transaction.Asset.IssuedAsset
 import com.wavesplatform.transaction.TxValidationError.GenericError
 import com.wavesplatform.transaction.smart.InvokeScriptTransaction
@@ -31,26 +26,26 @@ import com.wavesplatform.transaction.smart.InvokeScriptTransaction.Payment
 import com.wavesplatform.transaction.smart.script.ScriptCompiler
 import com.wavesplatform.transaction.smart.script.trace.{AccountVerifierTrace, TracedResult}
 import com.wavesplatform.transaction.transfer.{MassTransferTransaction, TransferTransaction}
+import com.wavesplatform.transaction.{Asset, Proofs, TxHelpers, TxVersion}
+import com.wavesplatform.{BlockGen, BlockchainStubHelpers, TestTime, TestValues, TestWallet}
 import monix.reactive.Observable
-import org.scalacheck.{Arbitrary, Gen}
 import org.scalacheck.Gen._
+import org.scalacheck.{Arbitrary, Gen}
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{Matchers, OptionValues}
-import org.scalatestplus.scalacheck.{ScalaCheckPropertyChecks => PropertyChecks}
-import play.api.libs.json._
+import org.scalatest.OptionValues
 import play.api.libs.json.Json.JsValueWrapper
+import play.api.libs.json._
+
+import scala.concurrent.Future
+import scala.util.Random
 
 class TransactionsRouteSpec
     extends RouteSpec("/transactions")
     with RestAPISettingsHelper
     with MockFactory
-    with Matchers
-    with TransactionGen
     with BlockGen
-    with PropertyChecks
     with OptionValues
     with TestWallet
-    with NoShrink
     with BlockchainStubHelpers {
 
   private val blockchain          = mock[Blockchain]
@@ -862,12 +857,12 @@ class TransactionsRouteSpec
       val amount1    = 100
       val nonce1     = 0
       val recipient1 = Recipient.Address(ByteStr.decodeBase58("3NAgxLPGnw3RGv9JT6NTDaG5D1iLUehg2xd").get)
-      val leaseId1   = Lease.calculateId(Lease(recipient1, amount1, nonce1), invoke.id.value())
+      val leaseId1   = Lease.calculateId(Lease(recipient1, amount1, nonce1), invoke.id())
 
       val amount2    = 20
       val nonce2     = 2
       val recipient2 = Recipient.Alias("some_alias")
-      val leaseId2   = Lease.calculateId(Lease(recipient2, amount2, nonce2), invoke.id.value())
+      val leaseId2   = Lease.calculateId(Lease(recipient2, amount2, nonce2), invoke.id())
 
       val blockchain = createBlockchainStub { blockchain =>
         val (dAppScript, _) = ScriptCompiler

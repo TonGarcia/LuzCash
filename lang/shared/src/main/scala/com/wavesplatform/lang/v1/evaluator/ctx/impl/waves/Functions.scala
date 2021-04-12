@@ -43,7 +43,7 @@ object Functions {
                 .map(_.flatMap {
                   case None => Right(unit)
                   case Some(a) =>
-                    a match {
+                    (a: @unchecked) match {
                       case b: ByteStr => CONST_BYTESTR(b)
                       case b: Long    => Right(CONST_LONG(b))
                       case b: String  => CONST_STRING(b)
@@ -539,7 +539,7 @@ object Functions {
                 case a                => throw new IllegalArgumentException(s"Unexpected address bytes $a")
               }
             case (dapp: CaseObj) :: _ if dapp.caseType == aliasType =>
-              dapp.fields("alias") match {
+              (dapp.fields("alias"): @unchecked) match {
                 case CONST_STRING(a) => env.resolveAlias(a).map(_.explicitGet().bytes)
               }
             case args => throw new IllegalArgumentException(s"Unexpected recipient args $args")
@@ -558,9 +558,9 @@ object Functions {
                   args.toList,
                   payments.map {
                     case p: CaseObj if p.caseType == paymentType =>
-                      List("assetId", "amount").map(p.fields) match {
-                        case List(CONST_BYTESTR(a), CONST_LONG(v)) => (Some(a.arr), v)
-                        case List(CaseObj(UNIT, _), CONST_LONG(v)) => (None, v)
+                      (List("assetId", "amount").map(p.fields): @unchecked) match {
+                        case CONST_BYTESTR(a) :: CONST_LONG(v) :: Nil => (Some(a.arr), v)
+                        case CaseObj(UNIT, _) :: CONST_LONG(v) :: Nil => (None, v)
                       }
                     case arg => throw new IllegalArgumentException(s"Unexpected payment arg $arg")
                   },

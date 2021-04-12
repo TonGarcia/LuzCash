@@ -24,8 +24,7 @@ import com.wavesplatform.transaction.{Asset, TxVersion}
 import io.grpc.Status.Code
 import org.asynchttpclient.Response
 import org.scalactic.source.Position
-import org.scalatest.Matchers._
-import org.scalatest.{Assertion, Assertions, Matchers}
+import org.scalatest.{Assertion, Assertions, matchers}
 import play.api.libs.json.Json.parse
 import play.api.libs.json._
 
@@ -35,7 +34,7 @@ import scala.concurrent.{Await, Awaitable, Future}
 import scala.util._
 import scala.util.control.NonFatal
 
-object SyncHttpApi extends Assertions {
+object SyncHttpApi extends Assertions with matchers.should.Matchers {
   case class ApiCallException(cause: Throwable) extends Exception("Error in API call", cause)
   case class ErrorMessage(error: Int, message: String)
   implicit val errorMessageFormat: Format[ErrorMessage] = Json.format
@@ -142,7 +141,7 @@ object SyncHttpApi extends Assertions {
     }
 
   //noinspection ScalaStyle
-  implicit class NodeExtSync(n: Node) extends Assertions with Matchers {
+  implicit class NodeExtSync(n: Node) extends Assertions with matchers.should.Matchers {
     import com.wavesplatform.it.api.AsyncHttpApi.{NodeAsyncHttpApi => async}
 
     private def maybeWaitForTransaction(tx: Transaction, wait: Boolean): Transaction = {

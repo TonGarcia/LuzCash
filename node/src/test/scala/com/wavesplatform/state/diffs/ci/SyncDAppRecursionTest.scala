@@ -15,18 +15,10 @@ import com.wavesplatform.state.diffs.{ENOUGH_AMT, produce}
 import com.wavesplatform.transaction.Asset.Waves
 import com.wavesplatform.transaction.GenesisTransaction
 import com.wavesplatform.transaction.smart._
-import com.wavesplatform.{NoShrink, TestTime, TransactionGen}
-import org.scalatest.{EitherValues, Matchers, PropSpec}
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import com.wavesplatform.TestTime
+import com.wavesplatform.test.PropSpec
 
-class SyncDAppRecursionTest
-    extends PropSpec
-    with ScalaCheckPropertyChecks
-    with Matchers
-    with TransactionGen
-    with NoShrink
-    with WithDomain
-    with EitherValues {
+class SyncDAppRecursionTest extends PropSpec with WithDomain {
 
   private val time = new TestTime
   private def ts   = time.getTimestamp()
@@ -84,7 +76,7 @@ class SyncDAppRecursionTest
       features
     ) {
       case (diff, _) =>
-        diff.errorMessage(invoke.id.value()) shouldBe None
+        diff.errorMessage(invoke.id()) shouldBe None
         diff.scriptsRun shouldBe 4
     }
   }
@@ -171,17 +163,19 @@ class SyncDAppRecursionTest
         invoke = InvokeScriptTransaction
           .selfSigned(1.toByte, dApp1, dApp2.toAddress, Some(FUNCTION_CALL(User("default"), List(CONST_BOOLEAN(false)))), Nil, fee, Waves, ts)
           .explicitGet()
-      } yield (List(genesis1, genesis2, genesis3, genesis4, setDApp1, setDApp2, setDApp3, setDApp4), invoke)
+      } yield (List(genesis1, genesis2, genesis3, genesis4, setDApp1, setDApp2, setDApp3, setDApp4), invoke, dApp3.toAddress)
 
-    val (preparingTxs @ _ :+ (setDApp3: SetScriptTransaction) :+ _, invoke) = preconditions.sample.get
-    assertDiffEi(
-      Seq(TestBlock.create(preparingTxs)),
-      TestBlock.create(Seq(invoke)),
-      features
-    )(
-      _ should produce(
-        s"The invocation stack contains multiple invocations of the dApp at address ${setDApp3.sender.toAddress} with invocations of another dApp between them"
-      )
-    )
+    forAll(preconditions) {
+      case (preparingTxs, invoke,addr) =>
+        assertDiffEi(
+          Seq(TestBlock.create(preparingTxs)),
+          TestBlock.create(Seq(invoke)),
+          features
+        )(
+          _ should produce(
+            s"The invocation stack contains multiple invocations of the dApp at address $addr with invocations of another dApp between them"
+          )
+        )
+    }
   }
 }

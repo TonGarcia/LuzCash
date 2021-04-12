@@ -10,8 +10,8 @@ import com.wavesplatform.lagonaki.mocks.TestBlock
 import com.wavesplatform.lang.Global
 import com.wavesplatform.lang.directives.DirectiveSet
 import com.wavesplatform.lang.directives.values.{Asset => AssetType, _}
-import com.wavesplatform.lang.script.v1.ExprScript
 import com.wavesplatform.lang.script.Script
+import com.wavesplatform.lang.script.v1.ExprScript
 import com.wavesplatform.lang.v1.FunctionHeader.User
 import com.wavesplatform.lang.v1.compiler.Terms._
 import com.wavesplatform.lang.v1.compiler.{ExpressionCompiler, TestCompiler}
@@ -29,11 +29,10 @@ import com.wavesplatform.transaction.lease._
 import com.wavesplatform.transaction.smart._
 import com.wavesplatform.transaction.transfer._
 import com.wavesplatform.utils._
-import com.wavesplatform.{NoShrink, TestTime, TransactionGen}
-import org.scalatest.PropSpec
-import org.scalatestplus.scalacheck.{ScalaCheckPropertyChecks => PropertyChecks}
+import com.wavesplatform.TestTime
+import com.wavesplatform.test.PropSpec
 
-class BalancesV4Test extends PropSpec with PropertyChecks with WithState with TransactionGen with NoShrink {
+class BalancesV4Test extends PropSpec with WithState {
 
   val MinFee: Long            = Constants.UnitsInWave / 1000L
   val DataTxFee: Long         = 15000000L

@@ -3,10 +3,8 @@ package com.wavesplatform.features
 import cats.implicits._
 import com.wavesplatform.TestTime
 import com.wavesplatform.block.Block
-import com.wavesplatform.common.state.diffs.ProduceError.produce
 import com.wavesplatform.common.utils.EitherExt2
 import com.wavesplatform.db.WithDomain
-import com.wavesplatform.it.util._
 import com.wavesplatform.lang.Global
 import com.wavesplatform.lang.directives.DirectiveSet
 import com.wavesplatform.lang.directives.values.{Account, DApp => DAppType, _}
@@ -18,11 +16,11 @@ import com.wavesplatform.lang.v1.traits.Environment
 import com.wavesplatform.mining.MiningConstraints.MaxScriptsComplexityInBlock
 import com.wavesplatform.mining._
 import com.wavesplatform.state.diffs.BlockDiffer
+import com.wavesplatform.test._
 import com.wavesplatform.transaction.TxHelpers
 import org.scalamock.scalatest.PathMockFactory
-import org.scalatest.{FlatSpec, Matchers}
 
-class RideV5LimitsChangeTest extends FlatSpec with Matchers with WithDomain with PathMockFactory {
+class RideV5LimitsChangeTest extends FlatSpec with WithDomain with PathMockFactory {
   "Blockchain" should "reject block with >1kk complexity before SynchronousCalls activated" in withDomain(DomainPresets.RideV4) { d =>
     val contractSigner  = TxHelpers.secondSigner
     val contractAddress = contractSigner.toAddress
@@ -55,7 +53,7 @@ class RideV5LimitsChangeTest extends FlatSpec with Matchers with WithDomain with
     val invokeComplexity = 3620
     val invokes          = for (_ <- 1 to invokesCount) yield TxHelpers.invoke(contractAddress, "test")
 
-    val time       = new TestTime()
+    val time = new TestTime()
 
     val block = d.createBlock(Block.ProtoBlockVersion, invokes, strictTime = true)
     val differResult = BlockDiffer

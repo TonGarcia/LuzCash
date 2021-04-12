@@ -4,7 +4,6 @@ import java.nio.file.Files
 
 import scala.concurrent.{Await, Promise}
 import scala.concurrent.duration._
-
 import com.google.protobuf.ByteString
 import com.wavesplatform.account.Address
 import com.wavesplatform.api.common.CommonBlocksApi
@@ -24,6 +23,7 @@ import com.wavesplatform.protobuf.Amount
 import com.wavesplatform.settings.{Constants, FunctionalitySettings, TestFunctionalitySettings, WavesSettings}
 import com.wavesplatform.state.{AssetDescription, Blockchain, EmptyDataEntry, Height, LeaseBalance, StringDataEntry}
 import com.wavesplatform.state.diffs.BlockDiffer
+import com.wavesplatform.test.FreeSpec
 import com.wavesplatform.transaction.{PaymentTransaction, TxHelpers}
 import com.wavesplatform.transaction.Asset.Waves
 import io.grpc.StatusException
@@ -31,10 +31,9 @@ import io.grpc.stub.{CallStreamObserver, StreamObserver}
 import monix.execution.CancelableFuture
 import monix.execution.Scheduler.Implicits.global
 import org.scalamock.scalatest.PathMockFactory
-import org.scalatest.{FreeSpec, Matchers}
 import org.scalatest.concurrent.ScalaFutures
 
-class BlockchainUpdatesSpec extends FreeSpec with Matchers with WithDomain with ScalaFutures with PathMockFactory {
+class BlockchainUpdatesSpec extends FreeSpec with WithDomain with ScalaFutures with PathMockFactory {
   var currentSettings: WavesSettings = domainSettingsWithFS(TestFunctionalitySettings.withFeatures(
     BlockchainFeatures.BlockReward,
     BlockchainFeatures.NG,

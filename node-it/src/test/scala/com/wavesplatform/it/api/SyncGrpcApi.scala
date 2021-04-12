@@ -3,7 +3,6 @@ package com.wavesplatform.it.api
 import java.util.concurrent.TimeoutException
 
 import com.google.protobuf.ByteString
-import com.google.protobuf.wrappers.StringValue
 import com.wavesplatform.account.{AddressScheme, KeyPair}
 import com.wavesplatform.api.grpc.BalanceResponse.WavesBalances
 import com.wavesplatform.api.grpc.{TransactionStatus => PBTransactionStatus, _}
@@ -74,8 +73,8 @@ object SyncGrpcApi extends Assertions {
       }
 
     def resolveAlias(alias: String): Addr = {
-      val addr = accounts.resolveAlias(StringValue.of(alias))
-      PBRecipients.toAddress(addr.value.toByteArray, AddressScheme.current.chainId).explicitGet()
+      val addr = accounts.resolveAlias(alias)
+      PBRecipients.toAddress(addr.toByteArray, AddressScheme.current.chainId).explicitGet()
     }
 
     def stateChanges(txId: String): (VanillaTransaction, StateChangesDetails) = {
@@ -366,21 +365,21 @@ object SyncGrpcApi extends Assertions {
     def assetInfo(assetId: String): AssetInfoResponse = sync(async(n).assetInfo(assetId))
 
     def blockAt(height: Int): VanillaBlock = {
-      val block = blocks.getBlock(BlockRequest.of(includeTransactions = true, BlockRequest.Request.Height.apply(height))).getBlock
+      val block = blocks.getBlock(BlockRequest.of(BlockRequest.Request.Height.apply(height), includeTransactions = true)).getBlock
       PBBlocks.vanilla(block).toEither.explicitGet()
     }
 
     def blockHeaderAt(height: Int): Header = {
-      blocks.getBlock(BlockRequest.of(includeTransactions = true, BlockRequest.Request.Height.apply(height))).getBlock.getHeader
+      blocks.getBlock(BlockRequest.of(BlockRequest.Request.Height.apply(height), includeTransactions = true)).getBlock.getHeader
     }
 
     def blockById(blockId: ByteString): VanillaBlock = {
-      val block = blocks.getBlock(BlockRequest.of(includeTransactions = true, BlockRequest.Request.BlockId.apply(blockId))).getBlock
+      val block = blocks.getBlock(BlockRequest.of(BlockRequest.Request.BlockId.apply(blockId), includeTransactions = true)).getBlock
       PBBlocks.vanilla(block).toEither.explicitGet()
     }
 
     def blockSeq(fromHeight: Int, toHeight: Int, filter: BlockRangeRequest.Filter = BlockRangeRequest.Filter.Empty): Seq[VanillaBlock] = {
-      val blockIter = blocks.getBlockRange(BlockRangeRequest.of(fromHeight, toHeight, includeTransactions = true, filter))
+      val blockIter = blocks.getBlockRange(BlockRangeRequest.of(fromHeight, toHeight, filter,  includeTransactions = true))
       blockIter.map(blockWithHeight => PBBlocks.vanilla(blockWithHeight.getBlock).toEither.explicitGet()).toSeq
     }
 

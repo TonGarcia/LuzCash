@@ -24,7 +24,7 @@ object PBUtils {
     outArray
   }
 
-  def decode[A <: GeneratedMessage with scalapb.Message[A]](msg: Array[Byte], cmp: GeneratedMessageCompanion[A]): Either[Throwable, A] =
+  def decode[A <: GeneratedMessage](msg: Array[Byte], cmp: GeneratedMessageCompanion[A]): Either[Throwable, A] =
     cmp
       .validate(msg)
       .toEither
