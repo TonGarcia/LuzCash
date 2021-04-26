@@ -1,5 +1,9 @@
 #!/bin/bash
 
+mkdir /var/lib/waves
+mkdir /var/log/waves
+mkdir /etc/waves/
+
 # Create user
 groupadd -r waves --gid=999
 useradd -r -g waves --uid=999 --home-dir=$WVDATA --shell=/bin/bash waves
@@ -19,4 +23,4 @@ cp /tmp/entrypoint.sh /usr/share/waves/bin/entrypoint.sh
 chmod +x /usr/share/waves/bin/entrypoint.sh
 
 # Cleanup
-rm -rf /tmp/*
+#rm -rf /tmp/*

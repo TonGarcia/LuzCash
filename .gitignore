@@ -38,3 +38,4 @@ package
 native
 
 !lang/jvm/lib/*.jar
+*.deb
