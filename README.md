@@ -1,7 +1,6 @@
 <h1 align="center">🔷 Waves Platform Node</h1>
 
 <p align="center">
-
   <a href="https://travis-ci.org/wavesplatform/Waves" target="_blank">
     <img alt="Build status" src="https://travis-ci.org/wavesplatform/Waves.svg?branch=master"  />
   </a>
