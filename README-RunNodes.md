@@ -23,6 +23,10 @@
 1. Configuração de Taxas: fee settings (tem configuração de como é feita a marcação das taxas)
 
 
+Criar um usuário a partir do SEED:
+https://github.com/wavesplatform/provider-seed
+ProviderSeed implements a Signature Provider for Signer protocol library. ProviderSeed creates user account from SEED.
+
 Exemplo de execução DevNet:
 1. Known-Peers (network-defaults.conf)
     ```conf
